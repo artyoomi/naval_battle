@@ -17,9 +17,10 @@ int main()
 
     manager.show();
     
-    field.attack(5, 5);
-    field.attack(4, 5);
-    field.attack(3, 5);
+    field.attack(4, 4);
+    field.attack(3, 4);
+    field.attack(3, 3);
+    field.attack(3, 0);
     
     field.show();
     

@@ -123,7 +123,8 @@ void GameField::CellInfo::set_state(GameField::CellState new_state)
     {state_ = new_state;}
 
 void GameField::CellInfo::set_system_state(CellState system_state)
-    {}
+    {system_state_ = system_state;}
+    
 void GameField::CellInfo::set_segment_ptr(Ship::SegmentState& seg_state)
     {segment_ = std::make_shared<Ship::SegmentState>(seg_state);}
 
@@ -186,7 +187,7 @@ bool GameField::place_ship(Ship& ship,
         }
     }
 
-    if (ship_segments_count > static_cast<std::size_t>(ship.size()))
+    if (ship_segments_count > 0)
         return false;
 
     ship.set_orientation(orientation);
@@ -237,7 +238,7 @@ std::string GameField::CellInfo::str() const
     */
     std::string str {"["};
 
-    switch (system_state_) {
+    switch (state_) {
     case GameField::CellState::Unknown:
         str += '~';
         break;     
