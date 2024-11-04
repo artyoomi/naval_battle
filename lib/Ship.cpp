@@ -38,7 +38,7 @@ Ship::SegState &Ship::operator [] (std::size_t seg_index)
 std::size_t                 Ship::size() const noexcept        { return _size; }
 std::vector<Ship::SegState> Ship::segs() const noexcept        { return _segs; }
 std::size_t                 Ship::health() const noexcept      { return _health; }
-bool                        Ship::is_vertical() const noexcept { return _vertical; }
+bool                        Ship::vertical() const noexcept { return _vertical; }
 
 /////////////
 // SETTERS //
@@ -49,7 +49,7 @@ void Ship::set_vertical() noexcept { _vertical = true; }
 void Ship::take_damage(std::size_t seg_index)
 {
     if (seg_index >= static_cast<std::size_t>(_size))
-        throw std::invalid_argument(INVALID_INDEX);
+        throw std::out_of_range("Invalid segment index!");
 
     if (_segs[seg_index] == SegState::INTACT)
         _segs[seg_index] = SegState::DAMAGED;

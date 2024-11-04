@@ -21,7 +21,7 @@ ShipManager::ShipManager(std::initializer_list<std::size_t> sizes)
     }
 }
 
-ShipManager::~ShipManager()
+ShipManager::~ShipManager() noexcept
 {
     for (std::size_t i = 0, size = _inactive_ships.size(); i < size; ++i)
         delete _inactive_ships[i];
@@ -61,8 +61,21 @@ void ShipManager::place_ship_to_field(GameField& field,
     if (ship_index < 0 || ship_index >= inactive_size())
         throw std::invalid_argument("Invalid ship index!");
 
-    // place ship on field
-    field.place_ship(_inactive_ships[ship_index], x, y, is_vertical);
+    try {
+        // place ship on field
+        field.place_ship(_inactive_ships[ship_index], x, y, is_vertical);
+    } catch (const std::invalid_argument &ex) {
+        std::cout << ex.what() << std::endl;
+        std::cout << "There is something wrong with your inactive_ships vector!\n";
+        return;
+    } catch (const std::out_of_range &ex) {
+        std::cout << ex.what() << std::endl;
+        return;
+    } catch (const std::logic_error &ex) {
+        std::cout << ex.what() << std::endl;
+        std::cout << "Can't place ship at position (" << x << ';' << y << ")!\n";
+        return;
+    }
 
     std::move(_inactive_ships.begin() + ship_index,
               _inactive_ships.begin() + ship_index + 1,

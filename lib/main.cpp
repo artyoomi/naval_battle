@@ -22,6 +22,9 @@ int main()
 //     field.attack(3, 4);
 //     field.attack(3, 3);
 //     field.attack(3, 0);
+
+    Ship ship(4);
+    std::cout << ship.size() << ' ' << static_cast<std::size_t>(ship[3]) << '\n';
     
     field.show();
 

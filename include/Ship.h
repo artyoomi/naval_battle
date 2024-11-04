@@ -20,13 +20,13 @@ public:
     Ship(std::size_t size);
 
     // operators
-    Ship::SegState& operator [] (std::size_t seg_index);
+    Ship::SegState& operator[](std::size_t seg_index);
 
     // getters
     std::size_t           size() const noexcept;
     std::vector<SegState> segs() const noexcept;
     std::size_t           health() const noexcept;
-    bool                  is_vertical() const noexcept;
+    bool                  vertical() const noexcept;
 
     // setters
     void set_vertical() noexcept;
