@@ -7,22 +7,33 @@
 #include "Ship.h"
 #include "GameField.h"
 
+/*
+ * Responsibility:
+ * Store information about all ships and their states.
+ */
+
 class ShipManager {
 public:
     ShipManager(std::initializer_list<std::size_t> sizes);
+    ~ShipManager();
 
     // getters
-    std::size_t size() const;
+    std::size_t size() const noexcept;
+    std::size_t inactive_size() const noexcept;
+    std::size_t active_size()   const noexcept;
+
+    const Ship& get_inactive_ship(std::size_t index) const;
+    const Ship& get_active_ship(std::size_t index) const;
+
+    void place_ship_to_field(GameField &field, std::size_t ship_index,
+                             std::size_t x, std::size_t y, bool is_vertical);
 
     // main functions
     void show() const;
-    bool place_ship(GameField& field,
-                    std::size_t ship_index,
-                    std::size_t x, std::size_t y,
-                    Ship::Orientation orientation);
 
 private:
-    std::vector<Ship> ships_;
+    std::vector<Ship*> _inactive_ships;
+    std::vector<Ship*> _active_ships;
 };
 
 #endif

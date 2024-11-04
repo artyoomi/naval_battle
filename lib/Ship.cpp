@@ -6,90 +6,63 @@
 
 #define INVALID_INDEX "Index must be in range [0; ship_size - 1]!"
 
-Ship::Ship(Size size)
-    : size_{std::move(size)},
-      segments_{static_cast<std::size_t>(size_), SegmentState::Intact},
-      // coords_{static_cast<std::size_t>(size_), coord{0, 0}},
-      orientation_{Orientation::Vertical},
-      placed_{false}
-{}
+Ship::Ship(std::size_t size)
+    : _size{std::move(size)},
+      _vertical{false}
+{
+    // check size for correctness
+    if (_size < static_cast<std::size_t>(Ship::Size::SMALL) ||
+        _size > static_cast<std::size_t>(Ship::Size::HUGE))
+        throw std::invalid_argument("Invalid ship size!");
+
+    // fill segments vector
+    for (std::size_t i {0}; i < _size; ++i)
+        _segs.emplace_back(SegState::INTACT);
+
+    // fill health of ship
+    _health = _size * static_cast<std::size_t>(SegState::INTACT);
+}
+
 ///////////////
 // OPERATORS //
-///////////////
-
-Ship::SegmentState& Ship::operator [] (std::size_t segment_index)
+Ship::SegState &Ship::operator [] (std::size_t seg_index)
 {
-    if (segment_index >= static_cast<std::size_t>(Ship::Size::Huge))
+    if (seg_index >= _size)
         throw std::out_of_range(INVALID_INDEX);
 
-    return segments_[segment_index];
+    return _segs[seg_index];
 }
 
 /////////////
 // GETTERS //
-/////////////
-
-Ship::Size Ship::size() const
-    {return size_;}
-
-Ship::SegmentState Ship::segment_state(std::size_t segment_index) const
-{
-    if (segment_index < static_cast<std::size_t>(size_))
-        return segments_[segment_index];
-    else {
-        throw std::invalid_argument(INVALID_INDEX);
-    }
-}
-
-Ship::Orientation Ship::orientation() const
-    {return orientation_;}
-
-bool Ship::placed() const
-    {return placed_;}
+std::size_t                 Ship::size() const noexcept        { return _size; }
+std::vector<Ship::SegState> Ship::segs() const noexcept        { return _segs; }
+std::size_t                 Ship::health() const noexcept      { return _health; }
+bool                        Ship::is_vertical() const noexcept { return _vertical; }
 
 /////////////
 // SETTERS //
-/////////////
-
-void Ship::set_orientation(Ship::Orientation orientation)
-    {orientation_ = orientation;}
-    
-void Ship::set_placed()
-    {placed_ = true;}
+void Ship::set_vertical() noexcept { _vertical = true; }
 
 ////////////////
 // MAIN LOGIC //
-////////////////
-
-// void Ship::take_damage(std::size_t segment_index)
-// {
-//     if (segment_index < static_cast<std::size_t>(size_)) {
-//         if (segments_[segment_index] == SegmentState::Intact)
-//             segments_[segment_index] = SegmentState::Damaged;
-//         else if (segments_[segment_index] == SegmentState::Damaged)
-//             segments_[segment_index] = SegmentState::Destroyed;
-//     } else {
-//         throw std::invalid_argument(INVALID_INDEX);
-//     }
-// }
-
-bool Ship::destroyed() const
+void Ship::take_damage(std::size_t seg_index)
 {
-    bool is_destroyed = true;
-    for (std::size_t i {0}; i < static_cast<std::size_t>(size_); ++i) {
-        if (segments_[i] != SegmentState::Destroyed)
-            is_destroyed = false;
-    }
+    if (seg_index >= static_cast<std::size_t>(_size))
+        throw std::invalid_argument(INVALID_INDEX);
 
-    return is_destroyed;
+    if (_segs[seg_index] == SegState::INTACT)
+        _segs[seg_index] = SegState::DAMAGED;
+    else if (_segs[seg_index] == SegState::DAMAGED)
+        _segs[seg_index] = SegState::DESTROYED;
 }
 
 std::string Ship::str() const
 {
     std::string ship_view;
-    for (std::size_t i {0}, size = segments_.size(); i < size; ++i) {
+    for (std::size_t i {0}, size = _segs.size(); i < size; ++i) {
         ship_view += '[';
-        ship_view += static_cast<std::size_t>(segments_[i]);
+        ship_view += std::to_string(static_cast<int>(_segs[i]));
         ship_view += ']';
     }
 

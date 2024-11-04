@@ -2,43 +2,45 @@
 #define SHIP_H
 
 #include <cstdint>
+
 #include <vector>
 #include <string>
 
+/*
+ * Responsibility:
+ * Store information about individual ship.
+ */
+
 class Ship {
 public:
-    enum class Size: uint8_t {Small = 1, Medium = 2, Large = 3, Huge = 4};
-    enum class SegmentState: uint8_t {Intact = 2, Damaged = 1, Destroyed = 0};
-    enum class Orientation: uint8_t {Vertical, Horizontal};
+    enum class Size: uint8_t {SMALL = 1, MEDIUM = 2, LARGE = 3, HUGE = 4};
+    enum class SegState: uint8_t {INTACT = 2, DAMAGED = 1, DESTROYED = 0};
 
-    // using coord = std::pair<std::size_t, std::size_t>;
-
-    Ship(Size size);
+    // constructors
+    Ship(std::size_t size);
 
     // operators
-    Ship::SegmentState& operator [] (std::size_t segment_index);
+    Ship::SegState& operator [] (std::size_t seg_index);
 
-    // getters    
-    Size         size() const;
-    SegmentState segment_state(std::size_t segment_index) const;
-    Orientation  orientation() const;
-    bool         placed() const;
+    // getters
+    std::size_t           size() const noexcept;
+    std::vector<SegState> segs() const noexcept;
+    std::size_t           health() const noexcept;
+    bool                  is_vertical() const noexcept;
 
     // setters
-    void set_orientation(Orientation orientation);
-    void set_placed();
+    void set_vertical() noexcept;
     
     // main methods
-    // void take_damage(std::size_t segment_index);
-    bool destroyed() const;
+    void take_damage(std::size_t seg_index);
+
     std::string str() const;
     
 private:
-    Size                      size_;
-    std::vector<SegmentState> segments_;
-    // std::vector<coord>        coords_; 
-    Orientation               orientation_;
-    bool                      placed_;
+    std::size_t           _size;
+    std::vector<SegState> _segs;
+    std::size_t           _health;
+    bool                  _vertical;
 };
 
 #endif

@@ -13,16 +13,19 @@ int main()
     GameField field(5, 5);
     field.show();
 
-    manager.place_ship(field, 2, 4, 4, Ship::Orientation::Horizontal);
+    manager.place_ship_to_field(field, 1, 4, 4, true);
+    manager.place_ship_to_field(field, 0, 2, 1, false);
 
     manager.show();
     
     field.attack(4, 4);
-    field.attack(3, 4);
-    field.attack(3, 3);
-    field.attack(3, 0);
+//     field.attack(3, 4);
+//     field.attack(3, 3);
+//     field.attack(3, 0);
     
     field.show();
+
+    manager.show();
     
     return 0;
 }

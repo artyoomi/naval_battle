@@ -6,72 +6,67 @@
 
 //////////////////
 // CONSTRUCTORS //
-//////////////////
-
 GameField::GameField(std::size_t width, std::size_t height)
-    : width_{std::move(width)},
-      height_{std::move(height)},
-      field_{width, std::vector<CellInfo>{height}}
+    : _width{std::move(width)},
+      _height{std::move(height)}
 {
-    bool changed {false};
-    if (width < MIN_FIELD_WIDTH) {
+    bool changed = false;
+
+    // check width
+    if (width < min_field_width) {
         changed = true;
-        width_ = MIN_FIELD_WIDTH;
-    } else if (width > MAX_FIELD_WIDTH) {
+        _width = min_field_width;
+    } else if (width > max_field_width) {
         changed = true;
-        width_ = MAX_FIELD_WIDTH;
+        _width = max_field_width;
     }
     
-    if (height < MIN_FIELD_HEIGHT) {
+    // check height
+    if (height < min_field_height) {
         changed = true;
-        height_ = MIN_FIELD_HEIGHT;
-    } else if (height > MAX_FIELD_HEIGHT) {
+        _height = min_field_height;
+    } else if (height > max_field_height) {
         changed = true;
-        height_ = MIN_FIELD_HEIGHT;
+        _height = min_field_height;
     }
 
+    // print warning message
     if (changed)
-        std::cerr << "The input sizes exceed the allowed ones, the input data will be adjusted\n"; 
+        std::cerr << "The input sizes exceed the allowed ones, the input data will be adjusted\n";
+
+    // fill field
+    _field.resize(_width);
+    for (std::size_t x = 0; x < _width; ++x) {
+        _field[x].resize(_height);
+        for (std::size_t y = 0; y < _height; ++y)
+            _field[x][y] = Cell();
+    }
 }
 
 GameField::GameField(const GameField& other)
-    : width_{other.width_},
-      height_{other.height_},
-      field_{other.field_}
+    : _width{other._width},
+      _height{other._height},
+      _field{other._field}
 {}
 
 GameField::GameField(GameField&& other)
-    : width_{0},
-      height_{0}
+    : _width{min_field_width},
+      _height{min_field_height}
 {
-    std::swap(width_, other.width_);
-    std::swap(height_, other.height_);
-    std::swap(field_, other.field_);
+    std::swap(_width, other._width);
+    std::swap(_height, other._height);
+    std::swap(_field, other._field);
 }
-
-GameField::CellInfo::CellInfo()
-    : state_{CellState::Unknown},
-      system_state_{CellState::Empty},
-      segment_{nullptr}
-{}
-
-GameField::CellInfo::CellInfo(const CellInfo& other)
-    : state_{other.state_},
-      system_state_{other.system_state_},
-      segment_{other.segment_}
-{}
 
 ///////////////
 // OPERATORS //
-///////////////
-
 GameField& GameField::operator = (const GameField& other)
 {
     if (&other != this) {
         GameField tmp{other};
-        std::swap(width_, tmp.width_);
-        std::swap(height_, tmp.height_);
-        std::swap(field_, tmp.field_);
+        std::swap(_width, tmp._width);
+        std::swap(_height, tmp._height);
+        std::swap(_field, tmp._field);
     }
     
     return *this;
@@ -80,21 +75,9 @@ GameField& GameField::operator = (const GameField& other)
 GameField& GameField::operator = (GameField&& other)
 {
     if (&other != this) {
-        std::swap(width_, other.width_);
-        std::swap(height_, other.height_);
-        std::swap(field_, other.field_);
-    }
-
-    return *this;
-}
-
-GameField::CellInfo& GameField::CellInfo::operator = (const CellInfo& other)
-{
-    if (&other != this) {
-        CellInfo tmp{other};
-        std::swap(state_, tmp.state_);
-        std::swap(system_state_, tmp.system_state_);
-        std::swap(segment_, tmp.segment_);
+        std::swap(_width, other._width);
+        std::swap(_height, other._height);
+        std::swap(_field, other._field);
     }
 
     return *this;
@@ -102,174 +85,125 @@ GameField::CellInfo& GameField::CellInfo::operator = (const CellInfo& other)
 
 /////////////
 // GETTERS //
-/////////////
-
-std::size_t GameField::width() const
-    {return width_;}
-std::size_t GameField::height() const
-    {return height_;}
-
-GameField::CellState GameField::CellInfo::state() const
-    {return state_;}
-
-GameField::CellState GameField::CellInfo::system_state() const
-    {return system_state_;}
-
-/////////////
-// SETTERS //
-/////////////
-
-void GameField::CellInfo::set_state(GameField::CellState new_state)
-    {state_ = new_state;}
-
-void GameField::CellInfo::set_system_state(CellState system_state)
-    {system_state_ = system_state;}
-    
-void GameField::CellInfo::set_segment_ptr(Ship::SegmentState& seg_state)
-    {segment_ = std::make_shared<Ship::SegmentState>(seg_state);}
+std::size_t GameField::width() const noexcept  { return _width; }
+std::size_t GameField::height() const noexcept { return _height; }
 
 ////////////////
 // MAIN LOGIC //
-////////////////
+bool GameField::is_ship(std::size_t x, std::size_t y) const noexcept { return _field[x][y].is_ship(); }
 
-bool GameField::place_ship(Ship& ship,
-                           std::size_t x, std::size_t y,
-                           Ship::Orientation orientation)
+void GameField::place_ship(Ship *ship, std::size_t x, std::size_t y, bool is_vertical)
 {
-    if (x >= width_ || y >= height_)
-        throw std::out_of_range(E_INVALID_COORDS);
+    // check ship pointer
+    if (ship == nullptr)
+        throw std::invalid_argument("Ship pointer is nullptr!");
 
-    std::size_t x_offset {0};
-    std::size_t y_offset {0};
+    std::size_t x_offset = 0;
+    std::size_t y_offset = 0;
     
-    if (orientation == Ship::Orientation::Horizontal)
-        x_offset = static_cast<std::size_t>(ship.size()) - 1;
+    // set offsets
+    if (!is_vertical)
+        x_offset = ship->size() - 1;
     else
-        y_offset = static_cast<std::size_t>(ship.size()) - 1;
+        y_offset = ship->size() - 1;
+
+    // check coords for correctness
+    if (x >= _width || y >= _height ||
+        x < x_offset || y < y_offset)
+        throw std::out_of_range("Invalid ship coordinates!");
 
     /*
-    for a while:
-    horizontal: x_tail <= x_head (x)
-    vertical:   y_tail <= y_head (y)
+     * horizontal: x_tail <= x_head (x)
+     * vertical:   y_tail <= y_head (y)
     */
 
-    // cant place at this position
-    if (x < x_offset || y < y_offset)
-        throw std::runtime_error(E_PLCMNT_ERROR);
-
-    /*
-    check from left up corner to right down
-    example:
-      ->[] ~ ~ ~ ~
-        ~ * * * ~
-        ~ ~ ~ ~ []<- right down corner
-        
-    count quantity of ship elements
-    if quantity != ship.size() => wrong placement
-    else => all right
+    /* Check cells about new ship:
+     * check from left up corner to right down
+     * example:
+     * ->[] ~ ~ ~ ~
+     *    ~ * * * ~
+     *    ~ ~ ~ ~ []<- right down corner
+     *
+     * count quantity of ship elements
+     * if quantity != 0 => can't place ship, due to ships intersection
+     * else => all right
     */
+    ssize_t left  = static_cast<ssize_t>(x) - x_offset - 1;
+    ssize_t right = static_cast<ssize_t>(x) + 1;
+    ssize_t down  = static_cast<ssize_t>(y) - y_offset - 1;
+    ssize_t up    = static_cast<ssize_t>(y) + 1;
 
-    std::size_t ship_segments_count {0};
-
-    // check area around ship
     // from left to right
-    for (ssize_t left {static_cast<ssize_t>(x - x_offset) - 1}, right {static_cast<ssize_t>(x) + 1};
-         left <= right; ++left) {
-        
+    for (ssize_t x = left; x < right; ++x) {
         // from down to up
-        for (ssize_t down {static_cast<ssize_t>(y - y_offset) - 1}, up {static_cast<ssize_t>(y) + 1};
-             down <= up; ++down) {
+        for (ssize_t y = down; y < up; ++y) {
             
-            if (left >= 0 && down >= 0 &&
-                left < width_ && down < height_ &&
-                field_[left][down].system_state() == CellState::Ship)
-                ++ship_segments_count;
+            if (x >= 0 && x < _width  &&
+                y >= 0 && y < _height && _field[x][y].is_ship())
+                throw std::logic_error("Intersection between ships occured!");
         }
     }
 
-    if (ship_segments_count > 0)
-        return false;
+    if (is_vertical) { ship->set_vertical(); }
 
-    ship.set_orientation(orientation);
-
-    std::size_t segment_index {0};
-    for (std::size_t x_tail {x - x_offset}; x_tail <= x; ++x_tail) {
-        for (std::size_t y_tail {y - y_offset}; y_tail <= y; ++y_tail) {
-            field_[x_tail][y_tail].set_system_state(CellState::Ship);
-            field_[x_tail][y_tail].set_segment_ptr(ship[segment_index++]);
-        }
+    std::size_t seg_index {0};
+    for (std::size_t x_tail = x - x_offset; x_tail <= x; ++x_tail) {
+        for (std::size_t y_tail = y - y_offset; y_tail <= y; ++y_tail)
+            _field[x_tail][y_tail].set_ship_seg(ship, seg_index++);
     }
-    
-    return true;
 }
 
-void GameField::attack(std::size_t x, std::size_t y)
+void GameField::attack(std::size_t x, std::size_t y, std::size_t damage)
 {
-    if (x >= width_ || y >= height_)
+    if (x >= _width || y >= _height)
         throw std::out_of_range(E_INVALID_COORDS);
     
-    field_[x][y].attack();
+    damage = (damage < 2) ? (damage) : (2);
 
-    if (field_[x][y].is_ship())
-        field_[x][y].set_state(CellState::Ship);
-    else
-        field_[x][y].set_state(CellState::Empty);
+    for (std::size_t i = 0; i < damage; ++i)
+        _field[x][y].attack();
 }
 
 void GameField::show() const
 {
-    for (size_t y {0}; y < height_; ++y) {
-        for (size_t x {0}; x < width_; ++x)
-            std::cout << field_[x][y].str();
+    auto str = [](Cell cell)
+    {
+        /*
+         * [~] - unknown cell
+         * [ ] - empty cell
+         * [*] - damaged ship segment
+         * [X] - destroyed ship segment
+         */
+        std::string str {"["};
+
+        switch (cell.state()) {
+        case CellState::UNKNOWN:
+            str += '~';
+            break;
+        case CellState::EMPTY:
+            str += ' ';
+            break;
+        case CellState::SHIP:
+            if (cell.seg_state() == Ship::SegState::DAMAGED)
+                str += '*';
+            else if (cell.seg_state() == Ship::SegState::DESTROYED)
+                str += 'X';
+            else
+                str += 'o';
+            break;
+    }
+
+    str += ']';
+
+    return str;
+    };
+
+    for (size_t y {0}; y < _height; ++y) {
+        for (size_t x {0}; x < _width; ++x)
+            std::cout << str(_field[x][y]);
 
         std::cout << '\n';
     }
 
     std::cout << '\n';
-}
-
-std::string GameField::CellInfo::str() const
-{
-    /*
-    [~] - unknown cell
-    [ ] - empty cell
-    [*] - damaged ship segment
-    [X] - destroyed ship segment
-    */
-    std::string str {"["};
-
-    switch (state_) {
-    case GameField::CellState::Unknown:
-        str += '~';
-        break;     
-    case GameField::CellState::Empty:
-        str += ' ';
-        break;   
-    case GameField::CellState::Ship:
-        if (*segment_ == Ship::SegmentState::Damaged)
-            str += '*';
-        else if (*segment_ == Ship::SegmentState::Destroyed)
-            str += 'X';
-        break;
-    }
-
-    str += ']';
-    
-    return str;
-}
-
-bool GameField::CellInfo::is_ship() const
-    {return system_state_ == CellState::Ship;}
-
-void GameField::CellInfo::attack()
-{
-    if (segment_ == nullptr)
-        return;
-    else if (*segment_ == Ship::SegmentState::Intact)
-        *segment_ = Ship::SegmentState::Damaged;
-    else if (*segment_ == Ship::SegmentState::Damaged)
-        *segment_ = Ship::SegmentState::Destroyed;
-    else
-        throw std::logic_error("Segment already destroyed");
-        
 }
