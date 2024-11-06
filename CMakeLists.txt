@@ -26,13 +26,13 @@ enable_testing()
 add_executable(Ship_test tests/Ship_test.cpp)
 target_link_libraries(Ship_test Ship gtest_main gtest)
 
-# add_executable(ShipManager_test tests/ShipManager_test.cpp)
-# target_link_libraries(ShipManager_test ShipManager gtest_main gtest)
+add_executable(ShipManager_test tests/ShipManager_test.cpp)
+target_link_libraries(ShipManager_test ShipManager GameField gtest_main gtest)
 
 # add_executable(GameField_test tests/GameField_test.cpp)
 # target_link_libraries(GameField_test GameField gtest_main gtest)
 
 include(GoogleTest)
 gtest_discover_tests(Ship_test)
-# gtest_discover_tests(ShipManager_test)
+gtest_discover_tests(ShipManager_test)
 # gtest_discover_tests(GameField_test)

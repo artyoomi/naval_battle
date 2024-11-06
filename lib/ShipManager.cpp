@@ -35,14 +35,14 @@ std::size_t ShipManager::size()          const noexcept { return _inactive_ships
 std::size_t ShipManager::inactive_size() const noexcept { return _inactive_ships.size(); }
 std::size_t ShipManager::active_size()   const noexcept { return _active_ships.size(); }
 
-const Ship& ShipManager::get_inactive_ship(std::size_t index) const
+const Ship& ShipManager::inactive_ship(std::size_t index) const
 {
     if (index >= inactive_size())
         throw std::out_of_range("Index is out of range!");
     return *_inactive_ships[index];
 }
 
-const Ship& ShipManager::get_active_ship(std::size_t index) const
+const Ship& ShipManager::active_ship(std::size_t index) const
 {
     if (index >= active_size())
         throw std::out_of_range("Index is out of range!");

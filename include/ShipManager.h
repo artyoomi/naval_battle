@@ -22,8 +22,8 @@ public:
     std::size_t inactive_size() const noexcept;
     std::size_t active_size()   const noexcept;
 
-    const Ship& get_inactive_ship(std::size_t index) const;
-    const Ship& get_active_ship(std::size_t index) const;
+    const Ship& inactive_ship(std::size_t index) const;
+    const Ship& active_ship(std::size_t index) const;
 
     void place_ship_to_field(GameField &field, std::size_t ship_index,
                              std::size_t x, std::size_t y, bool is_vertical);
