@@ -1,8 +1,15 @@
 #include "../include/GameField.h"
 
 #include "../include/Ship.h"
+#include "../include/exceptions/OutOfBoundsException.h"
+#include "../include/exceptions/ShipPlacementException.h"
 
 #include <iostream>
+
+const std::size_t GameField::min_width = 5;
+const std::size_t GameField::max_width = 30;
+const std::size_t GameField::min_height = 5;
+const std::size_t GameField::max_height = 30;
 
 //////////////////
 // CONSTRUCTORS //
@@ -13,21 +20,21 @@ GameField::GameField(std::size_t width, std::size_t height)
     bool changed = false;
 
     // check width
-    if (width < min_field_width) {
+    if (width < min_width) {
         changed = true;
-        _width = min_field_width;
-    } else if (width > max_field_width) {
+        _width = min_width;
+    } else if (width > max_width) {
         changed = true;
-        _width = max_field_width;
+        _width = max_width;
     }
     
     // check height
-    if (height < min_field_height) {
+    if (height < min_height) {
         changed = true;
-        _height = min_field_height;
-    } else if (height > max_field_height) {
+        _height = min_height;
+    } else if (height > max_height) {
         changed = true;
-        _height = min_field_height;
+        _height = max_height;
     }
 
     // print warning message
@@ -50,8 +57,8 @@ GameField::GameField(const GameField& other)
 {}
 
 GameField::GameField(GameField&& other)
-    : _width{min_field_width},
-      _height{min_field_height}
+    : _width{min_width},
+      _height{min_height}
 {
     std::swap(_width, other._width);
     std::swap(_height, other._height);
@@ -83,19 +90,27 @@ GameField& GameField::operator = (GameField&& other)
     return *this;
 }
 
+const std::vector<GameField::Cell>& GameField::operator [] (std::size_t x) const
+{
+    if (x >= this->width())
+        throw std::out_of_range("Index of column is out of range!");
+
+    return _field[x];
+}
+
 /////////////
 // GETTERS //
-std::size_t GameField::width() const noexcept  { return _width; }
+std::size_t GameField::width()  const noexcept { return _width; }
 std::size_t GameField::height() const noexcept { return _height; }
 
 ////////////////
 // MAIN LOGIC //
 bool GameField::is_ship(std::size_t x, std::size_t y) const noexcept { return _field[x][y].is_ship(); }
 
-void GameField::place_ship(Ship *ship, std::size_t x, std::size_t y, bool is_vertical)
+void GameField::place_ship(const ShipPtr &ship_ptr, std::size_t x, std::size_t y, bool is_vertical)
 {
     // check ship pointer
-    if (ship == nullptr)
+    if (ship_ptr == nullptr)
         throw std::invalid_argument("Ship pointer is nullptr!");
 
     std::size_t x_offset = 0;
@@ -103,14 +118,14 @@ void GameField::place_ship(Ship *ship, std::size_t x, std::size_t y, bool is_ver
     
     // set offsets
     if (!is_vertical)
-        x_offset = ship->size() - 1;
+        x_offset = ship_ptr->size() - 1;
     else
-        y_offset = ship->size() - 1;
+        y_offset = ship_ptr->size() - 1;
 
     // check coords for correctness
     if (x >= _width || y >= _height ||
         x < x_offset || y < y_offset)
-        throw std::out_of_range("Invalid ship coordinates!");
+        throw OutOfBoundsException("Invalid coordinates to place!");
 
     /*
      * horizontal: x_tail <= x_head (x)
@@ -140,23 +155,23 @@ void GameField::place_ship(Ship *ship, std::size_t x, std::size_t y, bool is_ver
             
             if (x >= 0 && x < _width  &&
                 y >= 0 && y < _height && _field[x][y].is_ship())
-                throw std::logic_error("Intersection between ships occured!");
+                throw ShipPlacementException("Intersection between ships occured!");
         }
     }
 
-    if (is_vertical) { ship->set_vertical(); }
+    if (is_vertical) { ship_ptr->set_vertical(); }
 
     std::size_t seg_index {0};
     for (std::size_t x_tail = x - x_offset; x_tail <= x; ++x_tail) {
         for (std::size_t y_tail = y - y_offset; y_tail <= y; ++y_tail)
-            _field[x_tail][y_tail].set_ship_seg(ship, seg_index++);
+            _field[x_tail][y_tail].set_ship_seg(ship_ptr, seg_index++);
     }
 }
 
 void GameField::attack(std::size_t x, std::size_t y, std::size_t damage)
 {
     if (x >= _width || y >= _height)
-        throw std::out_of_range(E_INVALID_COORDS);
+        throw OutOfBoundsException("Can't attack in out of bounds space!");
     
     damage = (damage < 2) ? (damage) : (2);
 

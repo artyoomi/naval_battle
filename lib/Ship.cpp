@@ -35,9 +35,9 @@ Ship::SegState &Ship::operator [] (std::size_t seg_index)
 
 /////////////
 // GETTERS //
-std::size_t                 Ship::size() const noexcept        { return _size; }
-std::vector<Ship::SegState> Ship::segs() const noexcept        { return _segs; }
-std::size_t                 Ship::health() const noexcept      { return _health; }
+std::size_t                 Ship::size()     const noexcept { return _size; }
+std::vector<Ship::SegState> Ship::segs()     const noexcept { return _segs; }
+std::size_t                 Ship::health()   const noexcept { return _health; }
 bool                        Ship::vertical() const noexcept { return _vertical; }
 
 /////////////

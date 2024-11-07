@@ -2,6 +2,14 @@
 
 #include <stdexcept>
 
+bool GameField::Cell::operator == (const Cell &cell) const noexcept
+{
+    return _ship_ptr   == cell._ship_ptr &&
+           _seg_index  == cell._seg_index &&
+           _is_hidden  == cell._is_hidden &&
+           _state      == cell._state;
+}
+
 GameField::CellState GameField::Cell::state() const noexcept { return _state; }
 
 Ship::SegState GameField::Cell::seg_state() const
@@ -15,7 +23,7 @@ Ship::SegState GameField::Cell::seg_state() const
 bool GameField::Cell::is_ship() const noexcept { return _state == CellState::SHIP; }
 
 //sets ship segment to the cell, adding a pointer to ship
-void GameField::Cell::set_ship_seg(Ship* const ship_ptr, const int seg_index) noexcept
+void GameField::Cell::set_ship_seg(ShipPtr const ship_ptr, const int seg_index) noexcept
 {
     _ship_ptr = ship_ptr;
     _seg_index = seg_index;

@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 /*
  * Responsibility:
@@ -42,5 +43,7 @@ private:
     std::size_t           _health;
     bool                  _vertical;
 };
+
+using ShipPtr = Ship*;
 
 #endif
