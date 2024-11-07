@@ -20,6 +20,13 @@ Ship::SegState GameField::Cell::seg_state() const
     return (*_ship_ptr)[_seg_index];
 }
 
+bool GameField::Cell::is_destroyed() const noexcept
+{
+    if (_ship_ptr == nullptr || _ship_ptr->health())
+        return false;
+    return true;
+}
+
 bool GameField::Cell::is_ship() const noexcept { return _state == CellState::SHIP; }
 
 //sets ship segment to the cell, adding a pointer to ship

@@ -21,6 +21,12 @@ ShipManager::ShipManager(std::initializer_list<std::size_t> sizes)
     }
 }
 
+ShipManager::~ShipManager()
+{
+    for (std::size_t i = 0; i < _ships.size(); ++i)
+        delete _ships[i];
+}
+
 /////////////
 // GETTERS //
 std::size_t ShipManager::size() const noexcept { return _ships.size(); }

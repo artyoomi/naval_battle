@@ -3,21 +3,24 @@
 
 #include <cstdint>
 
-#include <queue>
+#include <deque>
+#include <memory>
 
 #include "skills/Skill.h"
+#include "GameField.h"
 
 class SkillManager {
 public:
-    enum Skill : uint8_t {DOUBLE_DAMAGE = 0, SCANNER = 1, BOMBING = 2};
-
     SkillManager() noexcept;
 
-    void get_random_skill() noexcept;
-    void apply();
+    void add_random_skill() noexcept;
+    void apply(GameField& field, ShipManager& manager, std::size_t x, std::size_t y);
+
+    // debug function
+    void show() const noexcept;
 
 private:
-    std::deque<Skill> _skills;
+    std::deque<std::unique_ptr<ISkill>> _skills;
 };
 
 #endif

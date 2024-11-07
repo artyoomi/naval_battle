@@ -4,31 +4,34 @@
 #include "../include/Ship.h"
 #include "../include/ShipManager.h"
 #include "../include/GameField.h"
+#include "../include/SkillManager.h"
 
 int main()
 {
-    ShipManager manager({1, 4, 3, 2});
-    manager.show();
-    
-    GameField field(5, 5);
+    ShipManager  sh_manager({1, 2, 3, 4, 4, 3, 2, 1});
+    GameField    field(10, 10);
+    SkillManager sk_manager;
+
+    field.place_ship(&sh_manager[0], 0, 0, false);
+
+    sh_manager.show();
     field.show();
+    sk_manager.show();
+    std::cout << std::endl;
 
-//     manager.place_ship_to_field(field, 1, 4, 4, true);
-//     manager.place_ship_to_field(field, 0, 2, 1, false);
+    if (field.attack(0, 0))
+        sk_manager.add_random_skill();
 
-    field.place_ship(&manager[0], 4, 4, true);
-
-    manager.show();
-    
-    field.attack(4, 4);
-    field.attack(4, 4);
-
-    Ship ship(4);
-    std::cout << ship.size() << ' ' << static_cast<std::size_t>(ship[3]) << '\n';
-    
+    sh_manager.show();
     field.show();
+    sk_manager.show();
 
-    manager.show();
+    if (field.attack(0, 0))
+        sk_manager.add_random_skill();
+
+    sh_manager.show();
+    field.show();
+    sk_manager.show();
     
     return 0;
 }

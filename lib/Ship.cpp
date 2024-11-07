@@ -55,6 +55,8 @@ void Ship::take_damage(std::size_t seg_index)
         _segs[seg_index] = SegState::DAMAGED;
     else if (_segs[seg_index] == SegState::DAMAGED)
         _segs[seg_index] = SegState::DESTROYED;
+
+    --(this->_health);
 }
 
 std::string Ship::str() const

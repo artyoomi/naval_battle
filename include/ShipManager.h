@@ -15,6 +15,7 @@
 class ShipManager {
 public:
     ShipManager(std::initializer_list<std::size_t> sizes);
+    ~ShipManager();
 
     // getters
     std::size_t size() const noexcept;

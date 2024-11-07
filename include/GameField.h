@@ -40,6 +40,7 @@ private:
         // getters
         CellState state() const noexcept;
         Ship::SegState seg_state() const;
+        bool           is_destroyed() const noexcept;
 
         bool is_ship() const noexcept;
         void set_ship_seg(ShipPtr const ship_ptr, const int seg_index) noexcept;
@@ -68,10 +69,12 @@ public:
     std::size_t width() const noexcept;
     std::size_t height() const noexcept;
 
+    void set_double_damage();
+
     // main logic
     bool is_ship(std::size_t x, std::size_t y) const noexcept;
     void place_ship(const ShipPtr &ship_ptr, std::size_t x, std::size_t y, bool is_vertical);
-    void attack(std::size_t x, std::size_t y, std::size_t damage = 1);
+    bool attack(std::size_t x, std::size_t y);
 
     void show() const;
 
@@ -79,6 +82,7 @@ private:
     std::size_t                    _width;
     std::size_t                    _height;
     std::vector<std::vector<Cell>> _field;
+    bool                           _double_damage = false;
 };
 
 #endif

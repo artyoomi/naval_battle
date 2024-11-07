@@ -103,6 +103,8 @@ const std::vector<GameField::Cell>& GameField::operator [] (std::size_t x) const
 std::size_t GameField::width()  const noexcept { return _width; }
 std::size_t GameField::height() const noexcept { return _height; }
 
+void GameField::set_double_damage() { _double_damage = true; }
+
 ////////////////
 // MAIN LOGIC //
 bool GameField::is_ship(std::size_t x, std::size_t y) const noexcept { return _field[x][y].is_ship(); }
@@ -168,15 +170,16 @@ void GameField::place_ship(const ShipPtr &ship_ptr, std::size_t x, std::size_t y
     }
 }
 
-void GameField::attack(std::size_t x, std::size_t y, std::size_t damage)
+bool GameField::attack(std::size_t x, std::size_t y)
 {
     if (x >= _width || y >= _height)
         throw OutOfBoundsException("Can't attack in out of bounds space!");
     
-    damage = (damage < 2) ? (damage) : (2);
-
-    for (std::size_t i = 0; i < damage; ++i)
+    _field[x][y].attack();
+    if (_double_damage)
         _field[x][y].attack();
+
+    return _field[x][y].is_destroyed();
 }
 
 void GameField::show() const

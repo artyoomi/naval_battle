@@ -16,9 +16,12 @@ target_link_libraries(Cell Ship)
 add_library(GameField STATIC lib/GameField.cpp)
 target_link_libraries(GameField Cell Ship)
 
+file(GLOB SKILL_LIB_SRC "lib/skills/*.cpp")
+add_library(Skill STATIC lib/SkillManager.cpp ${SKILL_LIB_SRC})
+
 # Main add_executable
 add_executable(game lib/main.cpp)
-target_link_libraries(game Ship ShipManager GameField)
+target_link_libraries(game Ship ShipManager GameField Skill)
 
 # Testing
 enable_testing()
