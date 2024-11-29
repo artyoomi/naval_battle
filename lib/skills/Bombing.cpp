@@ -2,7 +2,7 @@
 
 #include <random>
 
-void Bombing::apply(GameField& field, ShipManager& manager, std::size_t x, std::size_t y)
+bool Bombing::apply(GameField& field, ShipManager& manager, std::size_t x, std::size_t y)
 {
     // search for all alive segments
     std::vector<std::pair<std::size_t, std::size_t>> alive_segs;
@@ -16,7 +16,7 @@ void Bombing::apply(GameField& field, ShipManager& manager, std::size_t x, std::
     }
 
     if (alive_segs.size() == 0)
-        return;
+        return false;
 
     std::random_device rd_dev;
     std::mt19937 rd_gen(rd_dev());
@@ -27,6 +27,8 @@ void Bombing::apply(GameField& field, ShipManager& manager, std::size_t x, std::
     std::pair ind_pair = alive_segs[rd_num % alive_segs.size()];
 
     manager[ind_pair.first].take_damage(ind_pair.second);
+
+    return true;
 }
 
 std::string Bombing::name() { return "Bombing"; }

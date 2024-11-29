@@ -6,7 +6,7 @@
 
 class ISkill {
 public:
-    virtual void        apply(GameField& field, ShipManager& manager, std::size_t x = 0, std::size_t y = 0) = 0;
+    virtual bool        apply(GameField& field, ShipManager& manager, std::size_t x = 0, std::size_t y = 0) = 0;
     virtual std::string name() = 0;
 };
 

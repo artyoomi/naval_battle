@@ -5,7 +5,7 @@
 
 class Bombing : public ISkill {
 public:
-    void        apply(GameField& field, ShipManager& manager, std::size_t x = 0, std::size_t y = 0) override;
+    bool        apply(GameField& field, ShipManager& manager, std::size_t x = 0, std::size_t y = 0) override;
     std::string name() override;
 };
 

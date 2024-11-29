@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "Ship.h"
-#include "GameField.h"
 
 /*
  * Responsibility:
@@ -14,11 +13,18 @@
 
 class ShipManager {
 public:
-    ShipManager(std::initializer_list<std::size_t> sizes);
+    ShipManager(std::vector<std::size_t> sizes);
+    ShipManager(const ShipManager &another);
+    ShipManager(ShipManager &&another);
     ~ShipManager();
 
     // getters
     std::size_t size() const noexcept;
+
+    void add_ship(std::size_t size);
+
+    ShipManager& operator = (const ShipManager &another);
+    ShipManager& operator = (ShipManager &&another);
 
     Ship &operator [] (std::size_t index) const;
 

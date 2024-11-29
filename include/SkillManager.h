@@ -9,17 +9,32 @@
 #include "skills/Skill.h"
 #include "GameField.h"
 
+/*
+ * Передавать необходимые аргументы в конструкторе менеджера
+ */
+
 class SkillManager {
 public:
-    SkillManager() noexcept;
+    SkillManager(GameField& field, ShipManager& manager) noexcept;
+    SkillManager& operator = (SkillManager&& other);
 
+    std::string get_top_name() const;
+    
+    void add_skill(std::string name);
     void add_random_skill() noexcept;
-    void apply(GameField& field, ShipManager& manager, std::size_t x, std::size_t y);
+    bool apply(std::size_t x, std::size_t y);
+
+    void clear();
+
+    json to_json() const;
+    void from_json(const json &j);
 
     // debug function
     void show() const noexcept;
 
 private:
+    GameField&   _field;
+    ShipManager& _manager;
     std::deque<std::unique_ptr<ISkill>> _skills;
 };
 

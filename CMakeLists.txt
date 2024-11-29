@@ -14,31 +14,19 @@ add_library(Cell STATIC lib/Cell.cpp)
 target_link_libraries(Cell Ship)
 
 add_library(GameField STATIC lib/GameField.cpp)
-target_link_libraries(GameField Cell Ship)
+target_link_libraries(GameField Cell Ship ShipManager)
 
 file(GLOB SKILL_LIB_SRC "lib/skills/*.cpp")
-add_library(Skill STATIC lib/SkillManager.cpp ${SKILL_LIB_SRC})
+add_library(SkillManager STATIC lib/SkillManager.cpp ${SKILL_LIB_SRC})
+
+add_library(File STATIC lib/save_load/File.cpp)
+
+add_library(GameState STATIC lib/save_load/GameState.cpp)
+target_link_libraries(GameField SkillManager File)
+
+add_library(Game STATIC lib/Game.cpp)
+target_link_libraries(GameField ShipManager SkillManager)
 
 # Main add_executable
 add_executable(game lib/main.cpp)
-target_link_libraries(game Ship ShipManager GameField Skill)
-
-# Testing
-enable_testing()
-
-# Ship
-add_executable(Ship_test tests/Ship_test.cpp)
-target_link_libraries(Ship_test Ship gtest_main gtest)
-
-# ShipManager
-add_executable(ShipManager_test tests/ShipManager_test.cpp)
-target_link_libraries(ShipManager_test ShipManager GameField gtest_main gtest)
-
-# GameField
-add_executable(GameField_test tests/GameField_test.cpp)
-target_link_libraries(GameField_test GameField ShipManager gtest_main gtest)
-
-include(GoogleTest)
-gtest_discover_tests(Ship_test)
-gtest_discover_tests(ShipManager_test)
-gtest_discover_tests(GameField_test)
+target_link_libraries(game Game GameField ShipManager SkillManager GameState)
